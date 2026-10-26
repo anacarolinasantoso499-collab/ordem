@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório Interativo de Algoritmos de Ordenação</title>
+    <!-- Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .bar-transition {
+            transition: height 0.3s ease, background-color 0.3s ease;
+        }
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen font-sans flex flex-col transition-colors duration-200">
+
+    <!-- Header / Navbar -->
+    <header class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-indigo-600 text-white p-2 rounded-xl shadow-md">
+                    <i class="fa-solid me-0 fa-chart-simple text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">SortLab</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Estrutura de Dados & Algoritmos</p>
+                </div>
+            </div>
+
+            <!-- Navegação por Abas -->
+            <nav class="hidden md:flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-sm font-medium">
+                <button onclick="switchTab('lab')" id="tab-btn-lab" class="px-4 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-100 shadow-sm transition">
+                    <i class="fa-solid fa-flask mr-1.5"></i>Laboratório
+                </button>
+                <button onclick="switchTab('tests')" id="tab-btn-tests" class="px-4 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                    <i class="fa-solid fa-vial-circle-check mr-1.5"></i>Bateria de Testes
+                </button>
+                <button onclick="switchTab('docs')" id="tab-btn-docs" class="px-4 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                    <i class="fa-solid fa-file-code mr-1.5"></i>Documentação & LinkedIn
+                </button>
+            </nav>
+
+            <!-- Ações Direitas (Tema) -->
+            <div class="flex items-center space-x-2">
+                <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Alternar tema">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tab Bar Mobile -->
+        <div class="flex md:hidden border-t border-slate-200 dark:border-slate-800 text-xs font-medium">
+            <button onclick="switchTab('lab')" id="tab-btn-mob-lab" class="flex-1 py-2 text-center text-brand-600 font-semibold border-b-2 border-brand-600">Laboratório</button>
+            <button onclick="switchTab('tests')" id="tab-btn-mob-tests" class="flex-1 py-2 text-center text-slate-500">Testes</button>
+            <button onclick="switchTab('docs')" id="tab-btn-mob-docs" class="flex-1 py-2 text-center text-slate-500">Docs / Entrega</button>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ABAS: 1. LABORATÓRIO -->
+        <section id="tab-lab" class="space-y-6">
+            
+            <!-- Painel de Configuração / Entrada -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/60">
+                <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-brand-500"></i> Entrada de Dados e Parâmetros
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                    <!-- Entrada de Números -->
+                    <div class="lg:col-span-6 space-y-2">
+                        <label for="input-data" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Sequência de Números <span class="text-xs text-slate-400 font-normal">(Separados por vírgula ou espaço)</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="input-data" placeholder="Ex: 45, -12, 8, 0, 100, 3, 8"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+                        </div>
+                        <!-- Botões de Exemplo Rápido -->
+                        <div class="flex flex-wrap gap-1.5 pt-1">
+                            <span class="text-xs text-slate-400 flex items-center mr-1">Exemplos:</span>
+                            <button onclick="setExample('5, 2, 8, 1')" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 px-2 py-1 rounded-lg transition">Padrão</button>
+                            <button onclick="setExample('4, 2, 4, 1, 2')" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 px-2 py-1 rounded-lg transition">Repetidos</button>
+                            <button onclick="setExample('3, -5, 0, -1, 12')" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 px-2 py-1 rounded-lg transition">Negativos</button>
+                            <button onclick="setExample('15, 2, 88, 3, -4, 42, 10, 0, 7')" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 px-2 py-1 rounded-lg transition">Médio</button>
+                            <button onclick="generateRandomData()" class="text-xs bg-brand-50 text-brand-600 dark:bg-slate-700 dark:text-brand-400 px-2 py-1 rounded-lg font-medium hover:bg-brand-100 transition"><i class="fa-solid fa-dice mr-1"></i>Gerar Aleatório</button>
+                        </div>
+                    </div>
+
+                    <!-- Seletor de Algoritmo -->
+                    <div class="lg:col-span-3 space-y-2">
+                        <label for="algorithm-select" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Algoritmo
+                        </label>
+                        <select id="algorithm-select" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+                            <option value="bubble">Bubble Sort</option>
+                            <option value="selection">Selection Sort</option>
+                            <option value="insertion">Insertion Sort</option>
+                            <option value="merge">Merge Sort</option>
+                            <option value="quick">Quick Sort</option>
+                        </select>
+                    </div>
+
+                    <!-- Sentido da Ordenação -->
+                    <div class="lg:col-span-3 space-y-2">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Sentido
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="order-asc" onclick="setOrder('asc')" class="py-2.5 px-3 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition bg-brand-500 border-brand-500 text-white">
+                                <i class="fa-solid fa-arrow-up-1-9"></i> Crescente
+                            </button>
+                            <button type="button" id="order-desc" onclick="setOrder('desc')" class="py-2.5 px-3 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300">
+                                <i class="fa-solid fa-arrow-down-9-1"></i> Decrescente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão Executar e Feedback de Validação -->
+                <div class="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-4 border-t border-slate-100 dark:border-slate-700/60">
+                    <div id="error-box" class="hidden items-center text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/40 px-4 py-2 rounded-xl border border-red-200 dark:border-red-900/50">
+                        <i class="fa-solid fa-triangle-exclamation mr-2 text-base"></i>
+                        <span id="error-message"></span>
+                    </div>
+                    <div id="info-box" class="text-slate-500 text-xs italic">
+                        * O código executa puramente em JavaScript customizado no cliente.
+                    </div>
+                    <button onclick="runSorting()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-semibold shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:opacity-95 active:scale-[0.98] transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Ordenar Sequência
+                    </button>
+                </div>
+            </div>
+
+            <!-- Painel de Resultados & Métricas -->
+            <div id="results-panel" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Métricas -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/60 space-y-4">
+                        <h3 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+                            <i class="fa-solid fa-gauge-high text-brand-500"></i> Desempenho & Estatísticas
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-xs text-slate-400 block">Comparações</span>
+                                <span id="metric-comparisons" class="text-xl font-bold text-slate-800 dark:text-white">0</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-xs text-slate-400 block">Trocas / Atribuições</span>
+                                <span id="metric-swaps" class="text-xl font-bold text-slate-800 dark:text-white">0</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-xs text-slate-400 block">Tempo de Execução</span>
+                                <span id="metric-time" class="text-xl font-bold text-emerald-600 dark:text-emerald-400">0.00 ms</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="text-xs text-slate-400 block">Total Elementos</span>
+                                <span id="metric-length" class="text-xl font-bold text-slate-800 dark:text-white">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Informativo da Complexidade -->
+                        <div id="algo-info-card" class="bg-brand-50/50 dark:bg-slate-900/80 p-3.5 rounded-xl border border-brand-100 dark:border-slate-700 text-xs space-y-1">
+                            <!-- Inserido dinamicamente via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparativo Lado a Lado & Gráfico -->
+                <div class="lg:col-span-8 space-y-6">
+                    <!-- Sequências Textuais -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/60 space-y-4">
+                        <h3 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-code-compare text-brand-500"></i> Comparação de Vetores
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sequência Original:</span>
+                                <div id="array-original" class="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl font-mono text-sm break-all border border-slate-200/50 dark:border-slate-700/50 text-slate-600 dark:text-slate-300">
+                                    -
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-xs font-semibold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">Sequência Ordenada:</span>
+                                <div id="array-sorted" class="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-xl font-mono text-sm font-semibold break-all border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+                                    -
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Representação Gráfica -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/60 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-brand-500"></i> Visualização Gráfica do Resultado
+                            </h3>
+                            <span class="text-xs text-slate-400">Escala Ajustada</span>
+                        </div>
+                        
+                        <div id="chart-container" class="h-48 w-full bg-slate-50 dark:bg-slate-900 rounded-xl p-4 flex items-end justify-center gap-1.5 overflow-x-auto border border-slate-200/50 dark:border-slate-700/50">
+                            <!-- Barras do gráfico renderizadas dinamicamente -->
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ABAS: 2. BATERIA DE TESTES AUTOMATIZADOS -->
+        <section id="tab-tests" class="hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/60 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-vial-circle-check text-emerald-500"></i> Bateria de Testes Automatizada
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                            Executa os 7 cenários obrigatórios do edital contra todos os 5 algoritmos e valida com o gabarito nativo <code>Array.prototype.sort()</code>.
+                        </p>
+                    </div>
+                    <button onclick="runAutomatedTests()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Executar Bateria de Testes
+                    </button>
+                </div>
+
+                <div id="test-results-container" class="overflow-x-auto">
+                    <p class="text-slate-400 italic text-sm text-center py-8">Clique no botão acima para rodar os testes automatizados...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABAS: 3. DOCUMENTAÇÃO, README & LINKEDIN -->
+        <section id="tab-docs" class="hidden space-y-6">
+            
+            <!-- Modal/Caixa para Cópia de Arquivos -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Gerador de README.md -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/60 flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                <i class="fa-fab fa-markdown text-brand-500"></i> README.md Formatado
+                            </h3>
+                            <button onclick="copyToClipboard('readme-content')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 font-medium transition flex items-center gap-1">
+                                <i class="fa-solid fa-copy"></i> Copiar README
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500">Documentação completa gerada pronta para colar no repositório do GitHub.</p>
+                        <pre id="readme-content" class="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs font-mono overflow-y-auto max-h-96 whitespace-pre-wrap border border-slate-800"></pre>
+                    </div>
+                </div>
+
+                <!-- Modelo de Post para o LinkedIn -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/60 flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-lg flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                                <i class="fa-brands fa-linkedin text-xl"></i> Publicação para LinkedIn
+                            </h3>
+                            <button onclick="copyToClipboard('linkedin-content')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 font-medium transition flex items-center gap-1">
+                                <i class="fa-solid fa-copy"></i> Copiar Texto
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500">Modelo de postagem profissional pronto para divulgação no seu perfil do LinkedIn.</p>
+                        <textarea id="linkedin-content" readonly class="w-full h-96 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl text-xs font-sans text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus:outline-none resize-none leading-relaxed"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Estrutura do Repositório -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/60 space-y-3">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-folder-tree text-amber-500"></i> Estrutura Esperada no GitHub
+                </h3>
+                <pre class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono border border-slate-800">
+meu-repositorio-sortlab/
+├── index.html       # Interface HTML5 e containers
+├── style.css        # Estilos customizados (ou via Tailwind)
+├── script.js        # Implementação dos 5 algoritmos e manipulação DOM
+└── README.md        # Documentação do projeto do curso técnico
+                </pre>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 py-6 bg-white dark:bg-slate-900 mt-auto text-xs text-center text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Laboratório Interativo de Algoritmos de Ordenação &bull; Trabalho Integrador de Estrutura de Dados</p>
+            <p class="mt-1">Desenvolvido para o Curso Técnico em Informática &copy; 2026</p>
+        </div>
+    </footer>
+
+    <!-- Notificação de Toast (Feedback visual) -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2.5 rounded-xl shadow-xl text-sm font-medium transition-opacity duration-300 opacity-0 pointer-events-none flex items-center gap-2 z-50">
+        <i class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600"></i>
+        <span id="toast-message">Texto copiado!</span>
+    </div>
+
+    <!-- SCRIPT DE LÓGICA E ALGORITMOS -->
+    <script>
+        // ==========================================
+        // ESTADO GLOBAL DA APLICAÇÃO
+        // ==========================================
+        let currentOrder = 'asc'; // 'asc' ou 'desc'
+
+        // Informações sobre a complexidade teórica dos algoritmos
+        const algoDetails = {
+            bubble: {
+                name: 'Bubble Sort',
+                worst: 'O(n²)',
+                best: 'O(n)',
+                space: 'O(1)',
+                desc: 'Compara pares adjacentes e flutua o maior elemento para o final a cada passagem.'
+            },
+            selection: {
+                name: 'Selection Sort',
+                worst: 'O(n²)',
+                best: 'O(n²)',
+                space: 'O(1)',
+                desc: 'Busca iterativamente o menor (ou maior) elemento da parte não ordenada e o coloca na posição correta.'
+            },
+            insertion: {
+                name: 'Insertion Sort',
+                worst: 'O(n²)',
+                best: 'O(n)',
+                space: 'O(1)',
+                desc: 'Constrói o vetor final ordenado inserindo um elemento por vez na sua posição correta.'
+            },
+            merge: {
+                name: 'Merge Sort',
+                worst: 'O(n log n)',
+                best: 'O(n log n)',
+                space: 'O(n)',
+                desc: 'Algoritmo Divisão e Conquista: divide o vetor ao meio, ordena recursivamente e intercala as partes.'
+            },
+            quick: {
+                name: 'Quick Sort',
+                worst: 'O(n²)',
+                best: 'O(n log n)',
+                space: 'O(log n)',
+                desc: 'Seleciona um elemento como pivô e particiona o vetor em sub-vetores de menores e maiores.'
+            }
+        };
+
+        // ==========================================
+        // ALGORITMOS IMPLEMENTADOS DO ZERO (JS PURO)
+        // ==========================================
+
+        /**
+         * 1. BUBBLE SORT
+         */
+        function bubbleSort(arr, order = 'asc') {
+            let a = [...arr];
+            let comparisons = 0;
+            let swaps = 0;
+            let n = a.length;
+
+            for (let i = 0; i < n - 1; i++) {
+                let swapped = false;
+                for (let j = 0; j < n - i - 1; j++) {
+                    comparisons++;
+                    let shouldSwap = (order === 'asc') ? (a[j] > a[j + 1]) : (a[j] < a[j + 1]);
+                    if (shouldSwap) {
+                        let temp = a[j];
+                        a[j] = a[j + 1];
+                        a[j + 1] = temp;
+                        swaps++;
+                        swapped = true;
+                    }
+                }
+                if (!swapped) break; // Otimização para caso já ordenado
+            }
+            return { sorted: a, comparisons, swaps };
+        }
+
+        /**
+         * 2. SELECTION SORT
+         */
+        function selectionSort(arr, order = 'asc') {
+            let a = [...arr];
+            let comparisons = 0;
+            let swaps = 0;
+            let n = a.length;
+
+            for (let i = 0; i < n - 1; i++) {
+                let targetIdx = i;
+                for (let j = i + 1; j < n; j++) {
+                    comparisons++;
+                    let isTarget = (order === 'asc') ? (a[j] < a[targetIdx]) : (a[j] > a[targetIdx]);
+                    if (isTarget) {
+                        targetIdx = j;
+                    }
+                }
+                if (targetIdx !== i) {
+                    let temp = a[i];
+                    a[i] = a[targetIdx];
+                    a[targetIdx] = temp;
+                    swaps++;
+                }
+            }
+            return { sorted: a, comparisons, swaps };
+        }
+
+        /**
+         * 3. INSERTION SORT
+         */
+        function insertionSort(arr, order = 'asc') {
+            let a = [...arr];
+            let comparisons = 0;
+            let swaps = 0;
+            let n = a.length;
+
+            for (let i = 1; i < n; i++) {
+                let key = a[i];
+                let j = i - 1;
+
+                while (j >= 0) {
+                    comparisons++;
+                    let condition = (order === 'asc') ? (a[j] > key) : (a[j] < key);
+                    if (condition) {
+                        a[j + 1] = a[j];
+                        swaps++;
+                        j--;
+                    } else {
+                        break;
+                    }
+                }
+                a[j + 1] = key;
+            }
+            return { sorted: a, comparisons, swaps };
+        }
+
+        /**
+         * 4. MERGE SORT
+         */
+        function mergeSort(arr, order = 'asc') {
+            let comparisons = 0;
+            let swaps = 0; // Conta atribuições na intercalação
+
+            function merge(left, right) {
+                let result = [];
+                let i = 0, j = 0;
+
+                while (i < left.length && j < right.length) {
+                    comparisons++;
+                    let condition = (order === 'asc') ? (left[i] <= right[j]) : (left[i] >= right[j]);
+                    if (condition) {
+                        result.push(left[i]);
+                        i++;
+                    } else {
+                        result.push(right[j]);
+                        j++;
+                    }
+                    swaps++;
+                }
+
+                while (i < left.length) {
+                    result.push(left[i]);
+                    i++;
+                    swaps++;
+                }
+                while (j < right.length) {
+                    result.push(right[j]);
+                    j++;
+                    swaps++;
+                }
+                return result;
+            }
+
+            function divide(array) {
+                if (array.length <= 1) return array;
+                const mid = Math.floor(array.length / 2);
+                const left = divide(array.slice(0, mid));
+                const right = divide(array.slice(mid));
+                return merge(left, right);
+            }
+
+            const sorted = divide([...arr]);
+            return { sorted, comparisons, swaps };
+        }
+
+        /**
+         * 5. QUICK SORT
+         */
+        function quickSort(arr, order = 'asc') {
+            let a = [...arr];
+            let comparisons = 0;
+            let swaps = 0;
+
+            function sort(items, left, right) {
+                if (items.length <= 1) return items;
+
+                let index = partition(items, left, right);
+                if (left < index - 1) {
+                    sort(items, left, index - 1);
+                }
+                if (index < right) {
+                    sort(items, index, right);
+                }
+                return items;
+            }
+
+            function partition(items, left, right) {
+                let pivot = items[Math.floor((right + left) / 2)];
+                let i = left;
+                let j = right;
+
+                while (i <= j) {
+                    if (order === 'asc') {
+                        while (items[i] < pivot) { comparisons++; i++; }
+                        if (i <= j) comparisons++; // Última comparação falsa
+                        
+                        while (items[j] > pivot) { comparisons++; j--; }
+                        if (i <= j) comparisons++;
+                    } else {
+                        while (items[i] > pivot) { comparisons++; i++; }
+                        if (i <= j) comparisons++;
+                        
+                        while (items[j] < pivot) { comparisons++; j--; }
+                        if (i <= j) comparisons++;
+                    }
+
+                    if (i <= j) {
+                        if (i !== j) {
+                            let temp = items[i];
+                            items[i] = items[j];
+                            items[j] = temp;
+                            swaps++;
+                        }
+                        i++;
+                        j--;
+                    }
+                }
+                return i;
+            }
+
+            if (a.length > 0) {
+                sort(a, 0, a.length - 1);
+            }
+
+            return { sorted: a, comparisons, swaps };
+        }
+
+        // Map auxiliar de executores
+        const algorithmMap = {
+            bubble: bubbleSort,
+            selection: selectionSort,
+            insertion: insertionSort,
+            merge: mergeSort,
+            quick: quickSort
+        };
+
+        // ==========================================
+        // PARSER & VALIDAÇÕES DE ENTRADA
+        // ==========================================
+        function parseInput(inputStr) {
+            if (!inputStr || inputStr.trim() === '') {
+                return { valid: false, error: 'A sequência de entrada não pode estar vazia.' };
+            }
+
+            // Separa por vírgula ou espaço em branco
+            const rawTokens = inputStr.trim().split(/[\s,]+/);
+            const numbers = [];
+
+            for (let token of rawTokens) {
+                if (token === '') continue;
+                // Validação estrita de número real/inteiro (aceita negativos)
+                if (!/^-?\d+(\.\d+)?$/.test(token)) {
+                    return { 
+                        valid: false, 
+                        error: `Entrada inválida encontrada: "${token}". Insira apenas números separados por espaço ou vírgula.` 
+                    };
+                }
+                numbers.push(Number(token));
+            }
+
+            if (numbers.length === 0) {
+                return { valid: false, error: 'Nenhum número válido foi identificado.' };
+            }
+
+            return { valid: true, numbers };
+        }
+
+        // ==========================================
+        // FLUXO PRINCIPAL DO LABORATORIO
+        // ==========================================
+        function runSorting() {
+            const inputVal = document.getElementById('input-data').value;
+            const errorBox = document.getElementById('error-box');
+            const errorMsg = document.getElementById('error-message');
+            const resultsPanel = document.getElementById('results-panel');
+
+            // Limpa mensagens anteriores
+            errorBox.classList.add('hidden');
+
+            // Valida entrada
+            const parsed = parseInput(inputVal);
+            if (!parsed.valid) {
+                errorMsg.textContent = parsed.error;
+                errorBox.classList.remove('hidden');
+                resultsPanel.classList.add('hidden');
+                return;
+            }
+
+            const array = parsed.numbers;
+            const selectedAlgo = document.getElementById('algorithm-select').value;
+            const sortFn = algorithmMap[selectedAlgo];
+
+            // Medição de tempo de alta precisão
+            const t0 = performance.now();
+            const result = sortFn(array, currentOrder);
+            const t1 = performance.now();
+            const executionTime = (t1 - t0).toFixed(3);
+
+            // Exibição dos resultados
+            displayResults(array, result.sorted, result.comparisons, result.swaps, executionTime, selectedAlgo);
+        }
+
+        function displayResults(original, sorted, comparisons, swaps, time, algoKey) {
+            const resultsPanel = document.getElementById('results-panel');
+            resultsPanel.classList.remove('hidden');
+
+            // Atualiza métricas
+            document.getElementById('metric-comparisons').textContent = comparisons.toLocaleString();
+            document.getElementById('metric-swaps').textContent = swaps.toLocaleString();
+            document.getElementById('metric-time').textContent = `${time} ms`;
+            document.getElementById('metric-length').textContent = original.length;
+
+            // Atualiza representações textuais
+            document.getElementById('array-original').textContent = `[ ${original.join(', ')} ]`;
+            document.getElementById('array-sorted').textContent = `[ ${sorted.join(', ')} ]`;
+
+            // Atualiza card descritivo do algoritmo
+            const details = algoDetails[algoKey];
+            document.getElementById('algo-info-card').innerHTML = `
+                <div class="font-bold text-slate-800 dark:text-white">${details.name}</div>
+                <p class="text-slate-600 dark:text-slate-300 mt-1">${details.desc}</p>
+                <div class="flex gap-4 pt-2 text-[11px] font-mono text-slate-500">
+                    <span>Pior Caso: <strong class="text-brand-600 dark:text-brand-400">${details.worst}</strong></span>
+                    <span>Melhor Caso: <strong class="text-emerald-600 dark:text-emerald-400">${details.best}</strong></span>
+                    <span>Espaço: <strong>${details.space}</strong></span>
+                </div>
+            `;
+
+            // Renderiza gráfico visual
+            renderChart(sorted);
+        }
+
+        function renderChart(array) {
+            const container = document.getElementById('chart-container');
+            container.innerHTML = '';
+
+            if (array.length === 0) return;
+
+            // Determinar min e max para normalizar altura
+            const maxVal = Math.max(...array, 1);
+            const minVal = Math.min(...array, 0);
+            const range = (maxVal - minVal) || 1;
+
+            array.forEach((val) => {
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'flex flex-col items-center flex-1 max-w-[40px] h-full justify-end group relative';
+
+                // Cálculo proporcional de altura (entre 15% e 100%)
+                const heightPercent = Math.max(15, Math.round(((val - minVal) / range) * 85 + 15));
+
+                const bar = document.createElement('div');
+                bar.className = 'w-full bg-gradient-to-t from-brand-600 to-indigo-500 rounded-t-md bar-transition group-hover:brightness-125';
+                bar.style.height = `${heightPercent}%`;
+
+                // Label com o valor sobre a barra
+                const label = document.createElement('span');
+                label.className = 'text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 mb-1 truncate w-full text-center';
+                label.textContent = val;
+
+                barWrapper.appendChild(label);
+                barWrapper.appendChild(bar);
+                container.appendChild(barWrapper);
+            });
+        }
+
+        // ==========================================
+        // HELPER UTILITIES
+        // ==========================================
+        function setOrder(order) {
+            currentOrder = order;
+            const ascBtn = document.getElementById('order-asc');
+            const descBtn = document.getElementById('order-desc');
+
+            if (order === 'asc') {
+                ascBtn.className = 'py-2.5 px-3 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition bg-brand-500 border-brand-500 text-white';
+                descBtn.className = 'py-2.5 px-3 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300';
+            } else {
+                descBtn.className = 'py-2.5 px-3 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition bg-brand-500 border-brand-500 text-white';
+                ascBtn.className = 'py-2.5 px-3 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300';
+            }
+        }
+
+        function setExample(str) {
+            document.getElementById('input-data').value = str;
+            runSorting();
+        }
+
+        function generateRandomData() {
+            const count = 10;
+            const randoms = Array.from({ length: count }, () => Math.floor(Math.random() * 100) - 20);
+            document.getElementById('input-data').value = randoms.join(', ');
+            runSorting();
+        }
+
+        function switchTab(tabId) {
+            // Abas de conteúdo
+            document.getElementById('tab-lab').classList.add('hidden');
+            document.getElementById('tab-tests').classList.add('hidden');
+            document.getElementById('tab-docs').classList.add('hidden');
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            // Estilos desktop
+            ['lab', 'tests', 'docs'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabId) {
+                    btn.className = 'px-4 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-100 shadow-sm transition';
+                } else {
+                    btn.className = 'px-4 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+                }
+            });
+        }
+
+        // ==========================================
+        // BATERIA DE TESTES AUTOMATIZADOS (GABARITO)
+        // ==========================================
+        const testCases = [
+            { id: 1, name: 'Sequência Comum', input: '5, 2, 8, 1', order: 'asc', expected: [1, 2, 5, 8] },
+            { id: 2, name: 'Valores Repetidos', input: '4, 2, 4, 1', order: 'asc', expected: [1, 2, 4, 4] },
+            { id: 3, name: 'Valores Negativos', input: '3, -5, 0, -1', order: 'asc', expected: [-5, -1, 0, 3] },
+            { id: 4, name: 'Um Único Elemento', input: '7', order: 'asc', expected: [7] },
+            { id: 5, name: 'Sequência Vazia', input: '', order: 'asc', expectedError: true },
+            { id: 6, name: 'Entrada Inválida', input: '3, abc, 2', order: 'asc', expectedError: true },
+            { id: 7, name: 'Ordem Decrescente', input: '1, 5, 3', order: 'desc', expected: [5, 3, 1] }
+        ];
+
+        function runAutomatedTests() {
+            const container = document.getElementById('test-results-container');
+            const algos = ['bubble', 'selection', 'insertion', 'merge', 'quick'];
+
+            let html = `
+                <table class="w-full text-left text-sm border-collapse min-w-[600px]">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Cenário de Teste</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Entrada</th>
+                            <th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Gabarito (JS Sort)</th>
+                            ${algos.map(a => `<th class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300 uppercase">${a}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            `;
+
+            testCases.forEach(tc => {
+                const parsed = parseInput(tc.input);
+                let nativeSorted = '-';
+
+                // Calcula gabarito oficial com Array.prototype.sort
+                if (parsed.valid) {
+                    const copy = [...parsed.numbers];
+                    copy.sort((a, b) => tc.order === 'asc' ? a - b : b - a);
+                    nativeSorted = `[${copy.join(', ')}]`;
+                } else {
+                    nativeSorted = '<span class="text-amber-500 italic">Erro Esperado</span>';
+                }
+
+                html += `<tr>
+                    <td class="py-3 px-4 font-medium">${tc.id}. ${tc.name}</td>
+                    <td class="py-3 px-4 font-mono text-xs text-slate-500">${tc.input || '<i>(vazio)</i>'}</td>
+                    <td class="py-3 px-4 font-mono text-xs">${nativeSorted}</td>
+                `;
+
+                algos.forEach(algoKey => {
+                    if (tc.expectedError) {
+                        // Caso com erro esperado
+                        if (!parsed.valid) {
+                            html += `<td class="py-3 px-4"><span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-check"></i> OK (Tratado)</span></td>`;
+                        } else {
+                            html += `<td class="py-3 px-4"><span class="text-xs font-semibold text-red-500">Falha</span></td>`;
+                        }
+                    } else {
+                        // Executa algoritmo e compara com o gabarito
+                        const res = algorithmMap[algoKey](parsed.numbers, tc.order);
+                        const isCorrect = JSON.stringify(res.sorted) === JSON.stringify(tc.expected);
+
+                        if (isCorrect) {
+                            html += `<td class="py-3 px-4"><span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-check"></i> OK</span></td>`;
+                        } else {
+                            html += `<td class="py-3 px-4"><span class="text-xs font-semibold text-red-500">Erro: [${res.sorted.join(',')}]</span></td>`;
+                        }
+                    }
+                });
+
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // ==========================================
+        // GERADOR DE CONTEÚDO (README & LINKEDIN)
+        // ==========================================
+        function setupDocsTemplates() {
+            const readmeText = `# Laboratório Interativo de Algoritmos de Ordenação
+
+Este projeto é uma aplicação web interativa desenvolvida como Trabalho Integrador para a disciplina de **Estrutura de Dados** do Curso Técnico em Informática.
+
+## 🚀 Objetivo
+Permitir que usuários insiram uma sequência numérica flexível, escolham o sentido de ordenação (crescente/decrescente) e visualizem a execução de 5 algoritmos de ordenação clássicos implementados do zero.
+
+## 🛠️ Algoritmos Implementados
+- **Bubble Sort**
+- **Selection Sort**
+- **Insertion Sort**
+- **Merge Sort**
+- **Quick Sort**
+
+*Nota: Todos os algoritmos foram escritos linha por linha em JavaScript puro (sem utilizar o método nativo \`Array.prototype.sort()\` para a ordenação principal).*
+
+## 🧪 Bateria de Testes
+O projeto possui uma aba dedicada que valida os 7 cenários de teste obrigatórios:
+1. Sequência comum (\`5, 2, 8, 1\`)
+2. Valores repetidos (\`4, 2, 4, 1\`)
+3. Valores negativos (\`3, -5, 0, -1\`)
+4. Elemento único (\`7\`)
+5. Entrada vazia (Tratamento de erro)
+6. Entrada inválida (Ex: \`3, abc, 2\`)
+7. Ordem decrescente (\`1, 5, 3\`)
+
+## 💻 Tecnologias Utilizadas
+- **HTML5 Semântico**
+- **Tailwind CSS** (Interface moderna e responsiva)
+- **JavaScript ES6+** (Lógica de ordenação, validação e manipulação do DOM)
+- **GitHub Pages** (Hospedagem)
+
+## 📁 Estrutura do Repositório
+\`\`\`text
+├── index.html       # Aplicação web completa
+├── style.css        # Folha de estilos
+├── script.js        # Lógica de algoritmos e testes
+└── README.md        # Documentação oficial
+\`\`\`
+
+---
+*Desenvolvido por Estudante do Curso Técnico em Informática - 2026*`;
+
+            const linkedinText = `🚀 Projeto Concluído: Laboratório Interativo de Algoritmos de Ordenação!
+
+Estou muito feliz em compartilhar o resultado final do meu Trabalho Integrador da disciplina de Estrutura de Dados do Curso Técnico em Informática!
+
+Desenvolvi uma aplicação web interativa ("SortLab") focada na visualização e análise comparativa do desempenho de algoritmos de ordenação clássicos.
+
+💡 Principais aprendizados e destaques do projeto:
+• Implementação "do zero" em JavaScript puro dos algoritmos: Bubble Sort, Selection Sort, Insertion Sort, Merge Sort e Quick Sort.
+• Comparação direta de métricas em tempo real (número de comparações, trocas/atribuições e tempo em milissegundos).
+• Tratamento rigoroso de exceções para dados inválidos, números negativos e elementos repetidos.
+• Layout totalmente responsivo com visualização gráfica adaptativa da sequência numérica.
+• Bateria de testes automatizada para validação contra o gabarito oficial.
+
+🔗 Link do Projeto (GitHub Pages): https://seu-usuario.github.io/sort-lab/
+💻 Repositório no GitHub: https://github.com/seu-usuario/sort-lab
+
+#EstruturaDeDados #JavaScript #WebDevelopment #Algoritmos #CursoTecnico #Programacao #Developer`;
+
+            document.getElementById('readme-content').textContent = readmeText;
+            document.getElementById('linkedin-content').value = linkedinText;
+        }
+
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            let text = '';
+            if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+                text = el.value;
+            } else {
+                text = el.textContent;
+            }
+
+            // Fallback usando document.execCommand para compatibilidade com iFrame/Sandbox
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast('Conteúdo copiado com sucesso!');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+
+        // ==========================================
+        // TEMA DARK/LIGHT
+        // ==========================================
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // ==========================================
+        // INICIALIZAÇÃO
+        // ==========================================
+        window.onload = function () {
+            setupDocsTemplates();
+            // Carrega um exemplo padrão ao iniciar
+            document.getElementById('input-data').value = '45, -12, 8, 0, 100, 3, 8';
+            runSorting();
+        };
+    </script>
+</body>
+</html>
